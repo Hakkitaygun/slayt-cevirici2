@@ -114,4 +114,371 @@
     .pgtrack{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden}
     .pgfill{height:100%;background:linear-gradient(90deg,var(--g-blue),var(--accent2));border-radius:2px;transition:width .35s ease;width:0%}
     .logbox{margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;font-size:12px;color:var(--muted);font-family:monospace;max-height:110px;overflow-y:auto;line-height:1.9}
-    .lok{color:var
+    .lok{color:var(--ok)}.lerr{color:var(--err)}.lwrn{color:var(--warn)}
+
+    .rwrap{display:none;margin-bottom:48px}
+    .rwrap.on{display:block}
+    .rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+    .rhead h3{font-family:var(--ff);font-size:17px;font-weight:700}
+    .rcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+    .rcard:hover{border-color:var(--border-h)}
+    .rchead{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+    .rcname{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .bpg{font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:2px 10px;color:var(--muted);font-weight:500}
+    .dlbtn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border-h);border-radius:8px;padding:7px 14px;color:var(--text);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--ff)}
+    .dlbtn:hover{background:var(--g-green);border-color:var(--g-green);transform:translateY(-1px)}
+    .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--border)}
+    .pcell{background:var(--surface);padding:16px}
+    .pnum{font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+    .pthumb{width:100%;aspect-ratio:16/9;object-fit:contain;border-radius:6px;background:var(--surface2);margin-bottom:10px;display:block}
+    .ptrans{font-size:12.5px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+    .ptrans.ld{color:var(--dim);font-style:italic}
+
+    .igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:44px}
+    @media(max-width:600px){.igrid{grid-template-columns:1fr}}
+    .icard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+    .inum{font-family:var(--ff);font-size:26px;font-weight:800;color:var(--g-blue);opacity:.6;margin-bottom:6px}
+    .icard h4{font-family:var(--ff);font-size:14px;font-weight:700;margin-bottom:5px}
+    .icard p{font-size:12px;color:var(--muted);line-height:1.6}
+
+    .alert{display:none;padding:11px 15px;border-radius:var(--r);font-size:13px;margin-bottom:14px;border:1px solid}
+    .alert.err{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);color:var(--err)}
+    .alert.ok{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.3);color:var(--ok)}
+    .alert.on{display:block}
+
+    footer{border-top:1px solid var(--border);padding:22px 0;text-align:center;font-size:12px;color:var(--dim)}
+    footer a{color:var(--muted);text-decoration:none}
+    footer a:hover{color:var(--accent2)}
+    @media(max-width:540px){.cbar{flex-direction:column}.bgo{width:100%}}
+  </style>
+</head>
+<body>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="mlogo"><div class="gi">G</div><h3>Google Gemini API Anahtarı</h3></div>
+    <p class="msub">Gemini API tamamen <b style="color:#34a853">ücretsiz</b> — aylık 1500 istek, kredi kartı gerekmez.</p>
+    <div class="guide">
+      <b>Ücretsiz anahtar nasıl alınır?</b><br>
+      1. <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a> adresine git<br>
+      2. Google hesabınla giriş yap<br>
+      3. <b>"Create API Key"</b> butonuna bas<br>
+      4. Oluşan anahtarı kopyalayıp aşağıya yapıştır
+    </div>
+    <input type="password" id="ki" placeholder="AIzaSy..." autocomplete="off" />
+    <div class="mbtns">
+      <button class="bcancel" onclick="closeM()">İptal</button>
+      <button class="bsave" onclick="saveK()">Kaydet &amp; Devam Et</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <h1>⟡ Slayt Çevirici</h1>
+      <p>PDF &amp; PPTX dosyalarını otomatik Türkçeye çevirir</p>
+    </div>
+    <div class="hright">
+      <div class="free-pill"><div class="dot"></div>Ücretsiz</div>
+      <div class="api-btn" id="abtn" onclick="openM()"><div class="d"></div><span id="atxt">API Anahtarı Ekle</span></div>
+    </div>
+  </header>
+
+  <div class="alert" id="al"></div>
+
+  <div class="drop" id="dz">
+    <div class="dicon">📄</div>
+    <h2>Dosyaları buraya bırakın</h2>
+    <p>veya <label class="lnk" for="fi">dosya seçin</label> — PDF ve PPTX desteklenir</p>
+    <div class="pills">
+      <span class="pill">📕 PDF</span>
+      <span class="pill">📊 PPTX</span>
+      <span class="pill">Çoklu dosya</span>
+    </div>
+  </div>
+  <input type="file" id="fi" accept=".pdf,.pptx" multiple />
+
+  <div class="fq" id="fq"></div>
+
+  <div class="cbar" id="cb">
+    <div class="lg">
+      <label>Kaynak dil:</label>
+      <select id="sl">
+        <option value="auto">Otomatik algıla</option>
+        <option value="English">İngilizce</option>
+        <option value="German">Almanca</option>
+        <option value="French">Fransızca</option>
+        <option value="Spanish">İspanyolca</option>
+        <option value="Italian">İtalyanca</option>
+        <option value="Arabic">Arapça</option>
+        <option value="Chinese">Çince</option>
+        <option value="Japanese">Japonca</option>
+        <option value="Russian">Rusça</option>
+      </select>
+    </div>
+    <button class="bgo" id="gbtn" onclick="run()">
+      <div class="spin"></div>
+      <span id="glbl">Türkçeye Çevir</span>
+    </button>
+  </div>
+
+  <div class="pgwrap" id="pgw">
+    <div class="pghead">
+      <span class="pglbl" id="pgl">Hazırlanıyor...</span>
+      <span class="pgcnt" id="pgc">0 / 0</span>
+    </div>
+    <div class="pgtrack"><div class="pgfill" id="pgf"></div></div>
+    <div class="logbox" id="lb"></div>
+  </div>
+
+  <div class="rwrap" id="rw">
+    <div class="rhead"><h3>✅ Çeviriler Tamamlandı</h3></div>
+    <div id="rl"></div>
+  </div>
+
+  <div class="igrid">
+    <div class="icard"><div class="inum">01</div><h4>Dosyayı Yükle</h4><p>PDF ya da PPTX sürükle-bırak veya seç. Aynı anda birden fazla dosya işlenir.</p></div>
+    <div class="icard"><div class="inum">02</div><h4>AI Görseli Okur</h4><p>Her sayfa Gemini Vision ile analiz edilir. Resimlerdeki metinler de çevrilir.</p></div>
+    <div class="icard"><div class="inum">03</div><h4>İndir</h4><p>Sayfa sayfa Türkçe çeviriler gösterilir. TXT olarak indirebilirsin.</p></div>
+  </div>
+
+  <footer>
+    <p>Slayt Çevirici &mdash; <a href="https://github.com" target="_blank">GitHub Pages'te ücretsiz çalışır</a> &mdash; Google Gemini Vision API ile güçlendirilmiştir</p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let files=[],key=localStorage.getItem('gk')||'',busy=false;
+updateB();
+
+function openM(){document.getElementById('modal').classList.add('open');document.getElementById('ki').value=key}
+function closeM(){document.getElementById('modal').classList.remove('open')}
+function saveK(){
+  const v=document.getElementById('ki').value.trim();
+  if(!v||v.length<20){alert('Geçersiz anahtar. "AIza..." formatında olmalı.');return}
+  key=v;localStorage.setItem('gk',v);updateB();closeM();
+  alert2('✓ API anahtarı kaydedildi! Artık çeviri yapabilirsiniz.','ok');
+}
+function updateB(){
+  const b=document.getElementById('abtn'),t=document.getElementById('atxt');
+  if(key&&key.length>10){b.classList.add('on');t.textContent='Gemini Bağlı ✓'}
+  else{b.classList.remove('on');t.textContent='API Anahtarı Ekle'}
+}
+function alert2(msg,type){
+  const e=document.getElementById('al');e.textContent=msg;e.className=`alert ${type} on`;
+  clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),5000);
+}
+
+const dz=document.getElementById('dz'),fi=document.getElementById('fi');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');addF(e.dataTransfer.files)});
+dz.addEventListener('click',e=>{if(e.target.tagName!=='LABEL')fi.click()});
+fi.addEventListener('change',e=>addF(e.target.files));
+
+function addF(list){
+  Array.from(list).forEach(f=>{
+    const ext=f.name.split('.').pop().toLowerCase();
+    if(!['pdf','pptx'].includes(ext)){alert2(`"${f.name}" desteklenmiyor.`,'err');return}
+    const id=Date.now()+''+Math.random().toString(36).slice(2);
+    files.push({id,file:f,name:f.name,ext,status:'pending',result:null});
+    renderF(files[files.length-1]);
+  });
+  if(files.length)document.getElementById('cb').classList.add('on');
+}
+function renderF(f){
+  const q=document.getElementById('fq'),d=document.createElement('div');
+  d.className='fitem';d.id=`fi-${f.id}`;
+  const sz=(f.file.size/1024/1024).toFixed(1),ic=f.ext==='pdf'?'📕':'📊';
+  d.innerHTML=`<div class="fic ${f.ext}">${ic}</div>
+    <div class="fmeta"><div class="fn">${f.name}</div><div class="fsz">${sz} MB</div></div>
+    <div class="fst p" id="fs-${f.id}">Bekliyor</div>
+    <button class="rm" onclick="rmF('${f.id}')">✕</button>`;
+  q.appendChild(d);
+}
+function rmF(id){
+  files=files.filter(f=>f.id!==id);
+  document.getElementById(`fi-${id}`)?.remove();
+  if(!files.length)document.getElementById('cb').classList.remove('on');
+}
+function setSt(id,cls,txt){const e=document.getElementById(`fs-${id}`);if(e){e.className=`fst ${cls}`;e.textContent=txt}}
+
+function lg(msg,c=''){
+  const b=document.getElementById('lb'),s=document.createElement('span');
+  s.style.display='block';if(c)s.className=c;
+  s.textContent=`[${new Date().toLocaleTimeString('tr')}] ${msg}`;
+  b.appendChild(s);b.scrollTop=b.scrollHeight;
+}
+
+let pT=0,pD=0;
+function initP(t){pT=t;pD=0;document.getElementById('pgw').classList.add('on');document.getElementById('pgf').style.width='0%';document.getElementById('pgc').textContent=`0 / ${t}`;document.getElementById('lb').innerHTML=''}
+function tick(lbl){pD++;const p=Math.round(pD/pT*100);document.getElementById('pgf').style.width=p+'%';document.getElementById('pgc').textContent=`${pD} / ${pT}`;document.getElementById('pgl').textContent=lbl}
+
+async function pdfToImgs(file){
+  const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data: new Uint8Array(buf)}).promise,out=[];
+  for(let i=1;i<=pdf.numPages;i++){
+    const pg=await pdf.getPage(i),vp=pg.getViewport({scale:1.8});
+    const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
+    await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+    out.push({b64:cv.toDataURL('image/jpeg',.85).split(',')[1],page:i});
+  }
+  return out;
+}
+
+async function pptxToImgs(file){
+  const buf=await file.arrayBuffer(),zip=await JSZip.loadAsync(buf);
+  const snames=Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
+  const out=[];
+  for(let i=0;i<snames.length;i++){
+    const cv=document.createElement('canvas');cv.width=1280;cv.height=720;
+    const ctx=cv.getContext('2d');
+    const g=ctx.createLinearGradient(0,0,0,720);g.addColorStop(0,'#1a1f35');g.addColorStop(1,'#0d111f');
+    ctx.fillStyle=g;ctx.fillRect(0,0,1280,720);
+    const rp=snames[i].replace('slides/slide','slides/_rels/slide')+'.rels';
+    if(zip.files[rp]){
+      const rx=await zip.files[rp].async('string');
+      const ms=[...rx.matchAll(/Target="\.\.\/media\/([^"]+)"/g)];
+      for(const m of ms){
+        const mp='ppt/media/'+m[1];
+        if(zip.files[mp]){
+          const ext=m[1].split('.').pop().toLowerCase();
+          if(['jpg','jpeg','png','gif','bmp','webp'].includes(ext)){
+            const ib=await zip.files[mp].async('base64');
+            const mime=ext==='png'?'image/png':'image/jpeg';
+            await new Promise(r=>{const img=new Image();img.onload=()=>{ctx.drawImage(img,0,0,1280,720);r()};img.onerror=r;img.src=`data:${mime};base64,${ib}`});
+            break;
+          }
+        }
+      }
+    }
+    const xs=await zip.files[snames[i]].async('string');
+    const tr=[...xs.matchAll(/<a:t>([^<]*)<\/a:t>/g)].map(m=>m[1]).filter(Boolean);
+    if(tr.length){
+      ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,1280,720);
+      let y=80,first=true;
+      for(const t of tr){
+        const txt=t.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim();
+        if(!txt)continue;
+        if(first){ctx.font='bold 36px sans-serif';ctx.fillStyle='#fff';first=false}
+        else{ctx.font='22px sans-serif';ctx.fillStyle='rgba(255,255,255,.8)'}
+        const words=txt.split(' ');let line='';
+        for(const w of words){const test=line?line+' '+w:w;if(ctx.measureText(test).width>1160){ctx.fillText(line,60,y);y+=32;line=w}else line=test}
+        if(line){ctx.fillText(line,60,y);y+=32}
+        if(y>660)break;
+      }
+    }
+    ctx.fillStyle='rgba(79,142,247,.7)';ctx.font='bold 13px sans-serif';ctx.fillText(`${i+1} / ${snames.length}`,18,706);
+    out.push({b64:cv.toDataURL('image/jpeg',.88).split(',')[1],page:i+1});
+  }
+  return out;
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function gemini(b64, pg, lang, retryCount = 0) {
+  const lh = lang === 'auto' ? '' : (`Kaynak dil: ${lang}. `);
+  const prompt = `${lh}Bu görseldeki TÜM metinleri (başlıklar, madde işaretleri, tablolar, diyagram etiketleri, alt yazılar) eksiksiz Türkçeye çevir. Formatlama: Ana başlık → ## Başlık. Yalnızca Türkçe çeviriyi yaz.`;
+
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ inline_data: { mime_type: 'image/jpeg', data: b64 } }, { text: prompt }] }],
+        generationConfig: { maxOutputTokens: 2048, temperature: 0.1 }
+      })
+    });
+
+    if (!res.ok) {
+      if (res.status === 429) {
+        if (retryCount < 4) {
+          lg(`Sayfa ${pg}: Hız limiti aşıldı! Google API dinlendiriliyor (15 saniye)...`, 'lwrn');
+          await sleep(15000); 
+          return gemini(b64, pg, lang, retryCount + 1);
+        }
+        throw new Error('Hız limiti aşıldı.');
+      }
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+    
+    const d = await res.json();
+    return d.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '[Çeviri alınamadı]';
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function run(){
+  if(busy)return;
+  if(!key||key.length<10){openM();return}
+  if(!files.length){alert2('Önce bir dosya ekleyin.','err');return}
+  busy=true;
+  const btn=document.getElementById('gbtn');
+  btn.classList.add('ld');btn.disabled=true;
+  document.getElementById('glbl').textContent='İşleniyor...';
+  document.getElementById('rw').classList.remove('on');
+  document.getElementById('rl').innerHTML='';
+  const lang=document.getElementById('sl').value;
+  let total=0;
+  for(const f of files){
+    try{
+      if(f.ext==='pdf'){const b=await f.file.arrayBuffer();const p=await pdfjsLib.getDocument({data: new Uint8Array(b)}).promise;total+=p.numPages}
+      else{const b=await f.file.arrayBuffer();const z=await JSZip.loadAsync(b);total+=Object.keys(z.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).length}
+    }catch{total+=1}
+  }
+  initP(total);
+  const rlist=document.getElementById('rl');
+  for(const f of files){
+    setSt(f.id,'r','⏳ İşleniyor');lg(`"${f.name}" başlatılıyor...`);
+    try{
+      const imgs=f.ext==='pdf'?await pdfToImgs(f.file):await pptxToImgs(f.file);
+      lg(`${imgs.length} sayfa bulundu`,'lok');
+      const card=document.createElement('div');card.className='rcard';
+      card.innerHTML=`<div class="rchead"><div class="rcname">${f.ext==='pdf'?'📕':'📊'} ${f.name}<span class="bpg">${imgs.length} sayfa</span></div><button class="dlbtn" onclick="dlR('${f.id}')">⬇ TXT İndir</button></div><div class="pgrid" id="pg-${f.id}"></div>`;
+      rlist.appendChild(card);
+      document.getElementById('rw').classList.add('on');
+      const prs=[],grid=document.getElementById(`pg-${f.id}`);
+      
+      for(const img of imgs){
+        const cell=document.createElement('div');cell.className='pcell';
+        cell.innerHTML=`<div class="pnum">Sayfa ${img.page}</div><img class="pthumb" src="data:image/jpeg;base64,${img.b64}"/><div class="ptrans ld" id="pt-${f.id}-${img.page}">Çevriliyor...</div>`;
+        grid.appendChild(cell);tick(`"${f.name}" — sayfa ${img.page}/${imgs.length}`);lg(`Sayfa ${img.page} çevriliyor...`);
+        
+        try{
+          const t=await gemini(img.b64,img.page,lang);
+          prs.push({page:img.page,text:t});
+          const el=document.getElementById(`pt-${f.id}-${img.page}`);el.textContent=t;el.classList.remove('ld');
+          lg(`Sayfa ${img.page} ✓ (Diğer sayfa için 5 sn bekleniyor...)`,'lok');
+          await sleep(5000); 
+        }catch(e){
+          const el=document.getElementById(`pt-${f.id}-${img.page}`);el.textContent=`⚠ ${e.message}`;el.style.color='var(--err)';el.classList.remove('ld');
+          prs.push({page:img.page,text:`[Hata: ${e.message}]`});lg(`Sayfa ${img.page}: ${e.message} (5 sn bekleniyor...)`,'lerr');
+          await sleep(5000); 
+        }
+      }
+      f.result={name:f.name,pages:prs};setSt(f.id,'d','✅ Tamamlandı');lg(`"${f.name}" tamamlandı`,'lok');
+    }catch(e){setSt(f.id,'e','❌ Hata');lg(`"${f.name}": ${e.message}`,'lerr')}
+  }
+  busy=false;btn.classList.remove('ld');btn.disabled=false;
+  document.getElementById('glbl').textContent='Tekrar Çevir';
+  document.getElementById('pgl').textContent='✅ Tüm dosyalar işlendi!';
+  alert2('🎉 Çeviri tamamlandı!','ok');
+}
+
+function dlR(id){
+  const f=files.find(x=>x.id===id);if(!f?.result)return;
+  const lines=[`# ${f.result.name}\n# Türkçe Çeviri\n`];
+  for(const p of f.result.pages)lines.push(`\n${'─'.repeat(60)}\n## Sayfa / Slayt ${p.page}\n\n${p.text}`);
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:f.name.replace(/\.\w+$/,'')+'_turkce.txt'});
+  a.click();URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
