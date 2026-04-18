@@ -320,7 +320,7 @@ function initP(t){pT=t;pD=0;document.getElementById('pgw').classList.add('on');d
 function tick(lbl){pD++;const p=Math.round(pD/pT*100);document.getElementById('pgf').style.width=p+'%';document.getElementById('pgc').textContent=`${pD} / ${pT}`;document.getElementById('pgl').textContent=lbl}
 
 async function pdfToImgs(file){
-  const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:buf}).promise,out=[];
+  const buf=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data: new Uint8Array(buf)}).promise,out=[];
   for(let i=1;i<=pdf.numPages;i++){
     const pg=await pdf.getPage(i),vp=pg.getViewport({scale:1.8});
     const cv=document.createElement('canvas');cv.width=vp.width;cv.height=vp.height;
@@ -391,14 +391,14 @@ Formatlama:
 - Metin yoksa sadece: [Bu sayfada metin bulunamadı]
 
 Yalnızca Türkçe çeviriyi yaz.`;
-  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,{
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${encodeURIComponent(key)}`,{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({contents:[{parts:[{inline_data:{mime_type:'image/jpeg',data:b64}},{text:prompt}]}],generationConfig:{maxOutputTokens:2048,temperature:0.1}})
   });
   if(!res.ok){
     const err=await res.json().catch(()=>({}));
     const msg=err.error?.message||`HTTP ${res.status}`;
-    if(res.status===400)throw new Error('Geçersiz API anahtarı. Kontrol edin.');
+    if(res.status===400)throw new Error('Geçersiz API anahtarı veya model ismi. Kontrol edin.');
     if(res.status===429)throw new Error('Hız limiti aşıldı. Biraz bekleyin.');
     throw new Error(msg);
   }
@@ -420,7 +420,7 @@ async function run(){
   let total=0;
   for(const f of files){
     try{
-      if(f.ext==='pdf'){const b=await f.file.arrayBuffer();const p=await pdfjsLib.getDocument({data:b}).promise;total+=p.numPages}
+      if(f.ext==='pdf'){const b=await f.file.arrayBuffer();const p=await pdfjsLib.getDocument({data: new Uint8Array(b)}).promise;total+=p.numPages}
       else{const b=await f.file.arrayBuffer();const z=await JSZip.loadAsync(b);total+=Object.keys(z.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n)).length}
     }catch{total+=1}
   }
